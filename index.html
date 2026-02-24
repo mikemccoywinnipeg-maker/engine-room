@@ -395,8 +395,6 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
   <button class="btn btn-primary" onclick="location.reload()" style="margin-top:1rem;">Play Again</button>
 </div>
 
-<!-- ═══ QR CODE LIB ═══ -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <!-- ═══ FIREBASE ═══ -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -555,18 +553,11 @@ function createRoom() {
   document.getElementById('host-room-code').textContent = roomCode;
   showView('host-lobby');
 
-  // Generate QR code
+  // Generate QR code using image API
   const baseUrl = 'https://mikemccoywinnipeg-maker.github.io/engine-room/';
   const joinUrl = baseUrl + '?room=' + roomCode;
-  document.getElementById('qr-code').innerHTML = '';
-  new QRCode(document.getElementById('qr-code'), {
-    text: joinUrl,
-    width: 180,
-    height: 180,
-    colorDark: '#08090c',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.M
-  });
+  const qrImg = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(joinUrl);
+  document.getElementById('qr-code').innerHTML = '<img src="' + qrImg + '" alt="QR Code" width="180" height="180" style="display:block;">';
   document.getElementById('qr-url-text').textContent = joinUrl;
 
   // Listen for players
