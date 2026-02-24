@@ -750,9 +750,27 @@ function hostStartGame() {
   if (hostSettings.count20) qs = qs.slice(0, 20);
 
   // Store minimal question data in Firebase (no correct answers!)
-  const qData = qs.map((q, i) => ({
-    idx: i, cat: q.cat, tag: q.tag, q: q.q, a: q.a
-  }));
+  // Shuffle answer order for each question so correct isn't always B/C
+  const qData = [];
+  const shuffledCorrectIndices = [];
+  const shuffledExplains = [];
+  const shuffledQs = [];
+
+  qs.forEach((q, i) => {
+    // Create index array [0,1,2,3] and shuffle it
+    const order = [0, 1, 2, 3];
+    for (let j = order.length - 1; j > 0; j--) {
+      const k = Math.floor(Math.random() * (j + 1));
+      [order[j], order[k]] = [order[k], order[j]];
+    }
+    const shuffledAnswers = order.map(idx => q.a[idx]);
+    const newCorrectIdx = order.indexOf(q.c);
+
+    qData.push({ idx: i, cat: q.cat, tag: q.tag, q: q.q, a: shuffledAnswers });
+    shuffledCorrectIndices.push(newCorrectIdx);
+    shuffledExplains.push(q.ex);
+    shuffledQs.push({ ...q, a: shuffledAnswers, c: newCorrectIdx });
+  });
 
   roomRef.update({
     state: 'playing',
@@ -766,9 +784,9 @@ function hostStartGame() {
   });
 
   // Store correct answers locally (never in Firebase)
-  window._hostAnswers = qs.map(q => q.c);
-  window._hostExplains = qs.map(q => q.ex);
-  window._hostQs = qs;
+  window._hostAnswers = shuffledCorrectIndices;
+  window._hostExplains = shuffledExplains;
+  window._hostQs = shuffledQs;
   window._totalQ = qs.length;
 
   showView('host-game');
@@ -788,12 +806,23 @@ function hostListenGame() {
     hostRenderQuestion(idx);
   });
 
-  // Answer ticker
+  // Answer ticker + auto-reveal
   roomRef.child('answers').on('value', snap => {
     const answers = snap.val() || {};
-    const currentQ = Object.keys(answers).length;
-    const totalPlayers = document.getElementById('hg-pcount').textContent;
-    document.getElementById('hg-ticker').innerHTML = `<strong>${currentQ}</strong> / ${totalPlayers} answered`;
+    const answerCount = Object.keys(answers).length;
+    const totalPlayers = parseInt(document.getElementById('hg-pcount').textContent) || 0;
+    document.getElementById('hg-ticker').innerHTML = `<strong>${answerCount}</strong> / ${totalPlayers} answered`;
+
+    // Auto-reveal when all players have answered
+    if (totalPlayers > 0 && answerCount >= totalPlayers) {
+      // Small delay so the ticker visually updates first
+      setTimeout(() => {
+        // Only reveal if not already revealed
+        if (document.getElementById('hg-reveal-btn').style.display !== 'none') {
+          hostReveal();
+        }
+      }, 800);
+    }
   });
 
   // Player count
