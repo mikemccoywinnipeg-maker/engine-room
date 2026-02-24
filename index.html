@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ENGINE ROOM — Competitive</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090c;
+  --bg-panel: #0f1116;
+  --bg-card: #161920;
+  --bg-hover: #1e222b;
+  --amber: #f59e0b;
+  --amber-glow: rgba(245,158,11,0.15);
+  --red: #ef4444;
+  --green: #22c55e;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --purple: #a855f7;
+  --text-1: #eaecf0;
+  --text-2: #9ca3af;
+  --text-3: #6b7280;
+  --border: #1e2330;
+  --border-l: #2a3040;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{height:100%;}
+body{min-height:100%;background:var(--bg);color:var(--text-1);font-family:'Barlow',sans-serif;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(245,158,11,0.025) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* ═══ VIEWS ═══ */
+.view{display:none;min-height:100vh;flex-direction:column;position:relative;z-index:1;}
+.view.active{display:flex;}
+
+/* ═══ SHARED ═══ */
+.btn{border:none;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;outline:none;}
+.btn-primary{background:var(--amber);color:var(--bg);padding:.8rem 2rem;border-radius:5px;font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
+.btn-primary:hover{background:#d97706;}
+.btn-secondary{background:var(--bg-card);color:var(--text-2);padding:.6rem 1.2rem;border-radius:4px;font-size:.85rem;border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--amber);color:var(--amber);}
+.mono{font-family:'Source Code Pro',monospace;}
+.tag{font-family:'Source Code Pro',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;padding:.25rem .6rem;border-radius:3px;display:inline-block;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--amber-glow)}50%{box-shadow:0 0 0 16px transparent}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes slideScore{0%{opacity:0;transform:translateY(8px) scale(.8)}50%{opacity:1;transform:translateY(-12px) scale(1.1)}100%{opacity:0;transform:translateY(-24px) scale(.9)}}
+@keyframes countUp{from{transform:scale(1.3);opacity:.5}to{transform:scale(1);opacity:1}}
+@keyframes barShrink{from{width:100%}to{width:0%}}
+@keyframes popIn{0%{transform:scale(0.3);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes rankShift{from{opacity:.6;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{text-shadow:0 0 8px var(--amber-glow)}50%{text-shadow:0 0 20px var(--amber-glow),0 0 40px rgba(245,158,11,0.08)}}
+
+.animate-up{animation:fadeUp .4s ease forwards;}
+.pop-in{animation:popIn .35s ease forwards;}
+
+/* ═══════════════════════════════════════════════ */
+/* LANDING / ROLE SELECT                          */
+/* ═══════════════════════════════════════════════ */
+#landing{align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1rem;}
+.landing-icon{width:90px;height:90px;border:2px solid var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;animation:pulse 3s ease-in-out infinite;margin-bottom:.5rem;}
+.landing-icon svg{width:44px;height:44px;fill:var(--amber);}
+.landing-title{font-family:'Oswald',sans-serif;font-size:clamp(2.5rem,6vw,4rem);font-weight:700;letter-spacing:.12em;text-transform:uppercase;line-height:1.1;}
+.landing-sub{font-family:'Source Code Pro',monospace;font-size:.8rem;color:var(--amber);letter-spacing:.25em;text-transform:uppercase;}
+.landing-desc{color:var(--text-2);max-width:420px;font-size:.95rem;line-height:1.6;margin:.5rem 0 1.5rem;}
+.role-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;}
+.role-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-1);padding:1.25rem 1.5rem;border-radius:6px;cursor:pointer;font-family:'Barlow',sans-serif;min-width:200px;text-align:left;transition:all .2s;}
+.role-btn:hover{border-color:var(--amber);background:var(--bg-hover);}
+.role-btn .rb-title{font-family:'Oswald',sans-serif;font-size:1.15rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.2rem;}
+.role-btn .rb-desc{font-size:.8rem;color:var(--text-3);}
+
+/* ═══════════════════════════════════════════════ */
+/* HOST LOBBY                                     */
+/* ═══════════════════════════════════════════════ */
+#host-lobby{align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1rem;}
+.room-code-display{margin:1rem 0;}
+.room-code-display .label{font-family:'Source Code Pro',monospace;font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.4rem;}
+.room-code{font-family:'Oswald',sans-serif;font-size:clamp(4rem,12vw,8rem);font-weight:700;letter-spacing:.2em;color:var(--amber);animation:glow 3s ease-in-out infinite;line-height:1;}
+.qr-section{margin:1rem 0;display:flex;flex-direction:column;align-items:center;gap:.6rem;}
+#qr-code{background:#fff;padding:12px;border-radius:8px;display:inline-block;line-height:0;}
+#qr-code img,#qr-code canvas{display:block;}
+.qr-label{font-family:'Source Code Pro',monospace;font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.15em;}
+.qr-url{font-family:'Source Code Pro',monospace;font-size:.65rem;color:var(--text-3);word-break:break-all;max-width:400px;opacity:.5;}
+.players-waiting{margin:1.5rem 0;width:100%;max-width:600px;}
+.players-waiting .pw-label{font-size:.85rem;color:var(--text-2);margin-bottom:.75rem;}
+.player-chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;min-height:40px;}
+.player-chip{background:var(--bg-card);border:1px solid var(--border-l);padding:.4rem .8rem;border-radius:4px;font-size:.85rem;color:var(--text-1);animation:popIn .3s ease forwards;}
+.player-chip .chip-dot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:.4rem;vertical-align:middle;}
+.host-settings{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin:1rem 0;}
+.setting-toggle{background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);padding:.5rem 1rem;border-radius:4px;font-size:.8rem;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;}
+.setting-toggle:hover,.setting-toggle.on{border-color:var(--amber);color:var(--amber);}
+.setting-toggle.on{background:rgba(245,158,11,0.08);}
+
+/* ═══════════════════════════════════════════════ */
+/* PLAYER JOIN                                    */
+/* ═══════════════════════════════════════════════ */
+#player-join{align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1rem;}
+.join-form{display:flex;flex-direction:column;gap:.75rem;align-items:center;width:100%;max-width:300px;}
+.join-form input{width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-1);padding:.8rem 1rem;border-radius:5px;font-family:'Barlow',sans-serif;font-size:1rem;text-align:center;outline:none;transition:border-color .2s;}
+.join-form input:focus{border-color:var(--amber);}
+.join-form input::placeholder{color:var(--text-3);}
+.join-form input.code-input{font-family:'Oswald',sans-serif;font-size:1.8rem;letter-spacing:.3em;text-transform:uppercase;}
+.join-error{color:var(--red);font-size:.8rem;min-height:1.2em;}
+
+/* ═══════════════════════════════════════════════ */
+/* PLAYER WAITING                                 */
+/* ═══════════════════════════════════════════════ */
+#player-wait{align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1rem;}
+.wait-status{color:var(--text-2);font-size:1.1rem;}
+.wait-name{font-family:'Oswald',sans-serif;font-size:2rem;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;}
+.wait-dots::after{content:'...';animation:dots 1.5s steps(4) infinite;}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+
+/* ═══════════════════════════════════════════════ */
+/* HOST GAME VIEW                                 */
+/* ═══════════════════════════════════════════════ */
+#host-game{padding:0;}
+.hg-header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;background:var(--bg-panel);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:.5rem;}
+.hg-logo{font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);}
+.hg-info{display:flex;gap:1.5rem;font-family:'Source Code Pro',monospace;font-size:.75rem;color:var(--text-3);}
+.hg-info span strong{color:var(--text-1);}
+.hg-progress{height:3px;background:var(--bg-panel);width:100%;}
+.hg-progress-bar{height:100%;background:var(--amber);transition:width .5s ease;}
+
+.hg-body{flex:1;display:flex;overflow:hidden;}
+.hg-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;position:relative;overflow:hidden;}
+.hg-sidebar{width:280px;background:var(--bg-panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+
+/* Question display */
+.hg-q-num{font-family:'Source Code Pro',monospace;font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.5rem;}
+.hg-q-tag{margin-bottom:1rem;}
+.hg-q-text{font-size:clamp(1.2rem,2.5vw,1.6rem);line-height:1.5;color:var(--text-1);max-width:700px;margin-bottom:2rem;font-weight:400;}
+
+.hg-answers{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;width:100%;max-width:700px;}
+.hg-ans{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:1rem 1.2rem;display:flex;align-items:flex-start;gap:.6rem;font-size:1rem;line-height:1.4;transition:all .3s;text-align:left;}
+.hg-ans .ha-letter{font-family:'Source Code Pro',monospace;font-weight:600;color:var(--text-3);min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-l);border-radius:3px;flex-shrink:0;font-size:.8rem;}
+.hg-ans.correct{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.4);}
+.hg-ans.correct .ha-letter{background:var(--green);color:var(--bg);border-color:var(--green);}
+.hg-ans.wrong-pick{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.2);opacity:.6;}
+
+/* Answer count ticker */
+.hg-ticker{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);font-family:'Source Code Pro',monospace;font-size:.8rem;color:var(--text-3);}
+.hg-ticker strong{color:var(--text-1);font-size:1rem;}
+
+/* Timer bar */
+.hg-timer-wrap{width:100%;max-width:700px;height:5px;background:var(--bg-panel);border-radius:3px;margin-bottom:1.5rem;overflow:hidden;}
+.hg-timer-bar{height:100%;background:var(--amber);border-radius:3px;transition:width .1s linear;}
+.hg-timer-bar.danger{background:var(--red);}
+
+/* Sidebar leaderboard */
+.sb-title{font-family:'Oswald',sans-serif;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);padding:.75rem 1rem;border-bottom:1px solid var(--border);}
+.sb-list{flex:1;overflow-y:auto;padding:.5rem 0;}
+.sb-row{display:flex;align-items:center;gap:.6rem;padding:.5rem 1rem;transition:all .3s;position:relative;}
+.sb-row.highlight{background:rgba(245,158,11,0.06);}
+.sb-rank{font-family:'Oswald',sans-serif;font-size:.85rem;color:var(--text-3);min-width:22px;text-align:center;}
+.sb-rank.gold{color:var(--amber);}
+.sb-rank.silver{color:#94a3b8;}
+.sb-rank.bronze{color:#c2813d;}
+.sb-name{flex:1;font-size:.85rem;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-pts{font-family:'Source Code Pro',monospace;font-size:.8rem;color:var(--text-2);font-weight:600;}
+.sb-streak{font-family:'Source Code Pro',monospace;font-size:.65rem;color:var(--amber);margin-left:.25rem;}
+.sb-delta{position:absolute;right:1rem;top:-.2rem;font-family:'Source Code Pro',monospace;font-size:.7rem;color:var(--green);font-weight:600;pointer-events:none;}
+.sb-delta.show{animation:slideScore 1s ease forwards;}
+
+/* host waiting between questions */
+.hg-between{display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;text-align:center;flex:1;}
+.hg-between.active{display:flex;}
+.hg-between .hb-label{font-family:'Source Code Pro',monospace;font-size:.75rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.15em;}
+.hg-between .hb-count{font-family:'Oswald',sans-serif;font-size:5rem;color:var(--amber);font-weight:700;line-height:1;}
+
+/* host results */
+.hg-results{display:none;flex-direction:column;align-items:center;padding:2rem;text-align:center;gap:1rem;flex:1;overflow-y:auto;}
+.hg-results.active{display:flex;}
+.podium{display:flex;gap:1.5rem;align-items:flex-end;margin:1.5rem 0;justify-content:center;}
+.podium-spot{display:flex;flex-direction:column;align-items:center;gap:.3rem;}
+.podium-bar{width:80px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:.75rem;}
+.podium-bar .p-rank{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:700;}
+.podium-spot:nth-child(1) .podium-bar{height:140px;border-color:var(--amber);background:rgba(245,158,11,0.06);}
+.podium-spot:nth-child(1) .p-rank{color:var(--amber);}
+.podium-spot:nth-child(2) .podium-bar{height:100px;}
+.podium-spot:nth-child(2) .p-rank{color:#94a3b8;}
+.podium-spot:nth-child(3) .podium-bar{height:70px;}
+.podium-spot:nth-child(3) .p-rank{color:#c2813d;}
+.podium-name{font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:.04em;text-transform:uppercase;}
+.podium-pts{font-family:'Source Code Pro',monospace;font-size:.8rem;color:var(--text-2);}
+
+.full-results{width:100%;max-width:500px;}
+.fr-row{display:flex;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem;}
+.fr-rank{font-family:'Oswald',sans-serif;min-width:30px;color:var(--text-3);}
+.fr-name{flex:1;text-align:left;}
+.fr-score{font-family:'Source Code Pro',monospace;font-weight:600;}
+.fr-correct{font-family:'Source Code Pro',monospace;font-size:.75rem;color:var(--text-3);margin-left:.75rem;}
+
+/* ═══════════════════════════════════════════════ */
+/* PLAYER GAME VIEW                               */
+/* ═══════════════════════════════════════════════ */
+#player-game{padding:0;}
+.pg-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;background:var(--bg-panel);border-bottom:1px solid var(--border);}
+.pg-name{font-family:'Oswald',sans-serif;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);}
+.pg-score-area{text-align:right;}
+.pg-pts{font-family:'Source Code Pro',monospace;font-size:.9rem;font-weight:600;}
+.pg-rank{font-family:'Source Code Pro',monospace;font-size:.7rem;color:var(--text-3);}
+
+.pg-body{flex:1;display:flex;flex-direction:column;padding:1rem;overflow-y:auto;}
+.pg-waiting{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--text-3);font-size:1rem;}
+
+.pg-timer-wrap{height:4px;background:var(--bg-panel);border-radius:2px;margin-bottom:1rem;overflow:hidden;}
+.pg-timer-bar{height:100%;background:var(--amber);border-radius:2px;transition:width .1s linear;}
+.pg-timer-bar.danger{background:var(--red);}
+
+.pg-q-tag{margin-bottom:.5rem;text-align:center;}
+.pg-q-text{font-size:1.05rem;line-height:1.5;text-align:center;margin-bottom:1.25rem;padding:0 .5rem;}
+.pg-answers{display:flex;flex-direction:column;gap:.6rem;}
+.pg-ans{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;display:flex;align-items:flex-start;gap:.6rem;font-size:.95rem;line-height:1.4;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;}
+.pg-ans:active:not(.disabled){background:var(--bg-hover);transform:scale(.98);}
+.pg-ans .pa-letter{font-family:'Source Code Pro',monospace;font-weight:600;color:var(--text-3);min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-l);border-radius:3px;flex-shrink:0;font-size:.75rem;}
+.pg-ans.correct{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.4);}
+.pg-ans.correct .pa-letter{background:var(--green);color:var(--bg);border-color:var(--green);}
+.pg-ans.wrong{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.35);}
+.pg-ans.wrong .pa-letter{background:var(--red);color:var(--bg);border-color:var(--red);}
+.pg-ans.disabled{pointer-events:none;opacity:.45;}
+.pg-ans.disabled.correct,.pg-ans.disabled.wrong{opacity:1;}
+
+.pg-feedback{margin-top:1rem;padding:.75rem 1rem;border-radius:5px;font-size:.85rem;line-height:1.4;display:none;}
+.pg-feedback.show{display:block;}
+.pg-feedback.correct-fb{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);color:var(--green);}
+.pg-feedback.wrong-fb{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:var(--red);}
+.pg-feedback .fb-pts{font-family:'Source Code Pro',monospace;font-weight:600;font-size:1rem;margin-bottom:.25rem;}
+.pg-feedback .fb-explain{color:var(--text-2);font-size:.8rem;}
+
+.pg-streak-bar{text-align:center;margin-top:.75rem;font-family:'Source Code Pro',monospace;font-size:.75rem;color:var(--text-3);}
+.pg-streak-bar .streak-num{color:var(--amber);font-weight:600;}
+.pg-streak-bar .multiplier{color:var(--amber);font-weight:700;font-size:.85rem;}
+
+/* Player results */
+#player-results{align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1rem;overflow-y:auto;}
+.pr-rank{font-family:'Oswald',sans-serif;font-size:5rem;font-weight:700;color:var(--amber);line-height:1;}
+.pr-label{font-family:'Source Code Pro',monospace;font-size:.75rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.15em;}
+.pr-name{font-family:'Oswald',sans-serif;font-size:1.5rem;letter-spacing:.06em;text-transform:uppercase;}
+.pr-score{font-family:'Source Code Pro',monospace;font-size:1.2rem;color:var(--text-2);}
+.pr-stats{display:flex;gap:2rem;margin:1rem 0;}
+.pr-stat-val{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:600;}
+.pr-stat-label{font-family:'Source Code Pro',monospace;font-size:.65rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:900px){
+  .hg-sidebar{display:none;}
+  .hg-answers{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .hg-answers{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LANDING ═══ -->
+<div id="landing" class="view active">
+  <div class="landing-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+  <h1 class="landing-title">ENGINE ROOM</h1>
+  <div class="landing-sub">Competitive Edition</div>
+  <div class="landing-desc">Head-to-head turbine maintenance challenge. Race to answer, earn speed bonuses, and build streaks.</div>
+  <div class="role-btns">
+    <button class="role-btn" onclick="goHost()">
+      <div class="rb-title">Host Game</div>
+      <div class="rb-desc">Project on screen. Control the questions.</div>
+    </button>
+    <button class="role-btn" onclick="goPlayer()">
+      <div class="rb-title">Join Game</div>
+      <div class="rb-desc">Play on your phone or laptop.</div>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ HOST LOBBY ═══ -->
+<div id="host-lobby" class="view">
+  <div class="landing-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+  <h2 style="font-family:'Oswald',sans-serif;font-size:1.5rem;letter-spacing:.08em;text-transform:uppercase;">Room Created</h2>
+  <div class="room-code-display">
+    <div class="label">Room Code</div>
+    <div class="room-code" id="host-room-code">----</div>
+  </div>
+  <div class="qr-section" id="qr-section">
+    <div id="qr-code"></div>
+    <div class="qr-label">Scan to join instantly</div>
+    <div class="qr-url" id="qr-url-text"></div>
+  </div>
+  <div class="players-waiting">
+    <div class="pw-label">Players joined:</div>
+    <div class="player-chips" id="host-player-chips"><span style="color:var(--text-3);font-size:.85rem;">Waiting for players...</span></div>
+  </div>
+  <div class="host-settings">
+    <button class="setting-toggle on" id="set-timer" onclick="toggleSetting(this)">⏱ 30s Timer</button>
+    <button class="setting-toggle" id="set-20" onclick="toggleSetting(this)">20 Questions</button>
+    <button class="setting-toggle" id="set-shuffle" onclick="toggleSetting(this,'shuffle')">Shuffle Order</button>
+  </div>
+  <button class="btn btn-primary" onclick="hostStartGame()" id="host-start-btn" style="margin-top:.5rem;">Start Game</button>
+</div>
+
+<!-- ═══ PLAYER JOIN ═══ -->
+<div id="player-join" class="view">
+  <h2 style="font-family:'Oswald',sans-serif;font-size:1.8rem;letter-spacing:.08em;text-transform:uppercase;">Join Game</h2>
+  <div class="join-form">
+    <input type="text" id="join-code" class="code-input" placeholder="CODE" maxlength="4" autocomplete="off">
+    <input type="text" id="join-name" placeholder="Your name" maxlength="20" autocomplete="off">
+    <button class="btn btn-primary" onclick="playerJoin()" style="width:100%;">Join</button>
+    <div class="join-error" id="join-error"></div>
+  </div>
+</div>
+
+<!-- ═══ PLAYER WAITING ═══ -->
+<div id="player-wait" class="view">
+  <div class="wait-name" id="pw-name">---</div>
+  <div class="wait-status">You're in! <span class="wait-dots"></span></div>
+  <div style="color:var(--text-3);font-size:.85rem;margin-top:.5rem;">Waiting for host to start the game</div>
+</div>
+
+<!-- ═══ HOST GAME ═══ -->
+<div id="host-game" class="view">
+  <div class="hg-header">
+    <span class="hg-logo">Engine Room</span>
+    <div class="hg-info">
+      <span>Room <strong id="hg-room">----</strong></span>
+      <span>Q <strong id="hg-qcount">1/40</strong></span>
+      <span>Players <strong id="hg-pcount">0</strong></span>
+    </div>
+  </div>
+  <div class="hg-progress"><div class="hg-progress-bar" id="hg-prog-bar"></div></div>
+  <div style="flex:1;display:flex;overflow:hidden;" id="hg-content-wrap">
+    <!-- Main question area -->
+    <div class="hg-main" id="hg-main">
+      <div class="hg-timer-wrap" id="hg-timer-wrap"><div class="hg-timer-bar" id="hg-timer-bar"></div></div>
+      <div class="hg-q-num" id="hg-q-num">QUESTION 01 / 40</div>
+      <div class="hg-q-tag" id="hg-q-tag"></div>
+      <div class="hg-q-text" id="hg-q-text"></div>
+      <div class="hg-answers" id="hg-answers"></div>
+      <div class="hg-ticker" id="hg-ticker"></div>
+      <div style="margin-top:1.5rem;display:flex;gap:.75rem;" id="hg-controls">
+        <button class="btn btn-primary" id="hg-reveal-btn" onclick="hostReveal()" style="display:none;">Reveal Answer</button>
+        <button class="btn btn-primary" id="hg-next-btn" onclick="hostNext()" style="display:none;">Next Question</button>
+        <button class="btn btn-primary" id="hg-finish-btn" onclick="hostFinish()" style="display:none;">Final Results</button>
+      </div>
+    </div>
+    <!-- Sidebar leaderboard -->
+    <div class="hg-sidebar" id="hg-sidebar">
+      <div class="sb-title">Leaderboard</div>
+      <div class="sb-list" id="sb-list"></div>
+    </div>
+    <!-- Between questions countdown -->
+    <div class="hg-between" id="hg-between">
+      <div class="hb-label">Next Question In</div>
+      <div class="hb-count" id="hg-countdown">3</div>
+    </div>
+    <!-- Final results -->
+    <div class="hg-results" id="hg-results">
+      <h2 style="font-family:'Oswald',sans-serif;font-size:2rem;letter-spacing:.08em;text-transform:uppercase;">Final Results</h2>
+      <div class="podium" id="hg-podium"></div>
+      <div class="full-results" id="hg-full-results"></div>
+      <button class="btn btn-primary" onclick="location.reload()" style="margin-top:1.5rem;">New Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PLAYER GAME ═══ -->
+<div id="player-game" class="view">
+  <div class="pg-header">
+    <span class="pg-name" id="pg-name">---</span>
+    <div class="pg-score-area">
+      <div class="pg-pts" id="pg-pts">0 pts</div>
+      <div class="pg-rank" id="pg-rank"></div>
+    </div>
+  </div>
+  <div class="pg-body" id="pg-body">
+    <div class="pg-waiting" id="pg-waiting">Waiting for question...</div>
+    <div id="pg-question-area" style="display:none;">
+      <div class="pg-timer-wrap" id="pg-timer-wrap"><div class="pg-timer-bar" id="pg-timer-bar"></div></div>
+      <div class="pg-q-tag" id="pg-q-tag"></div>
+      <div class="pg-q-text" id="pg-q-text"></div>
+      <div class="pg-answers" id="pg-answers"></div>
+      <div class="pg-feedback" id="pg-feedback"></div>
+      <div class="pg-streak-bar" id="pg-streak-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PLAYER RESULTS ═══ -->
+<div id="player-results" class="view">
+  <div class="pr-label">Your Finish</div>
+  <div class="pr-rank" id="pr-rank">#1</div>
+  <div class="pr-name" id="pr-name">---</div>
+  <div class="pr-score" id="pr-score">0 pts</div>
+  <div class="pr-stats" id="pr-stats"></div>
+  <button class="btn btn-primary" onclick="location.reload()" style="margin-top:1rem;">Play Again</button>
+</div>
+
+<!-- ═══ QR CODE LIB ═══ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- ═══ FIREBASE ═══ -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+// FIREBASE INIT
+// ═══════════════════════════════════════════════
+firebase.initializeApp({
+  apiKey: "AIzaSyD5PLfJ123ypYj3Q9SRbGp9E5mGiMiUuN8",
+  authDomain: "engine-room-game.firebaseapp.com",
+  databaseURL: "https://engine-room-game-default-rtdb.firebaseio.com",
+  projectId: "engine-room-game",
+  storageBucket: "engine-room-game.firebasestorage.app",
+  messagingSenderId: "730919327406",
+  appId: "1:730919327406:web:cf5f3928a990ad3b427f3f"
+});
+const db = firebase.database();
+
+// ═══════════════════════════════════════════════
+// QUESTION BANK (40 questions)
+// ═══════════════════════════════════════════════
+const ALL_QUESTIONS = [
+  {cat:"FOD & Erosion",tag:"tag-fod",q:"A compressor wash using an emulsion cleaner followed by a water rinse is called what?",a:["Desalinization wash","Performance recovery wash","Abrasive grit blast","Motoring wash"],c:1,ex:"An emulsion cleaner + water rinse removes baked-on dirt/soot = performance recovery wash. Water alone = desalinization wash."},
+  {cat:"FOD & Erosion",tag:"tag-fod",q:"A motoring wash is performed with the engine at what speed range?",a:["Idle speed","50–75% N1","10–25% speed","Full power"],c:2,ex:"Motoring wash: starter turns the engine at 10–25% speed. A running wash uses engine idle."},
+  {cat:"FOD & Erosion",tag:"tag-fod",q:"Abrasive grit blast materials like Carboblast or Jetblast are typically made from what?",a:["Glass beads and steel shot","Ground walnut shells or apricot pits","Aluminum oxide pellets","Silica sand and baking soda"],c:1,ex:"Organic materials — ground walnut shells or apricot pits — won't damage engine components."},
+  {cat:"FOD & Erosion",tag:"tag-fod",q:"Why does abrasive grit blast cleaning do little to clean turbine blades?",a:["The grit is too soft for nickel alloys","Turbine blades have ceramic coatings","Most grit burns up before reaching the turbines","The turbine section is sealed during the procedure"],c:2,ex:"The cleaning grit combusts in the hot section before it can reach the turbine blades and vanes."},
+  {cat:"FOD & Erosion",tag:"tag-fod",q:"Sulfidation on turbine blades is caused by a buildup of which element?",a:["Carbon","Nitrogen","Sulfur","Lead"],c:2,ex:"Sulfur from combustion gases slowly attacks turbine blade coatings. Regular washes reduce it."},
+  {cat:"FOD & Erosion",tag:"tag-fod",q:"Some engines allow turbine washes through what access points?",a:["Bleed valve openings","Oil filler ports","Ports or igniter plug holes","Drain mast connections"],c:2,ex:"Turbine washes can be performed through ports or igniter plug holes during a motoring run."},
+  {cat:"Scheduled Maint",tag:"tag-scheduled",q:"An operator wanting to avoid extended aircraft grounding during annual inspections would use what program?",a:["Phase inspection","Progressive / continuous inspection","100-hour inspection","Service bulletin compliance check"],c:1,ex:"Progressive/continuous inspection breaks the annual into smaller segments — less downtime."},
+  {cat:"Scheduled Maint",tag:"tag-scheduled",q:"Oil filters on a turbine engine are typically checked, cleaned, or replaced at what interval?",a:["50 hours","100 hours","200 hours","600 hours"],c:2,ex:"Oil filters: ~200 hr. Oil changes and SOAP samples: 100/600 hr intervals."},
+  {cat:"Scheduled Maint",tag:"tag-scheduled",q:"In a salt-air environment, how often should a desalinization wash be performed?",a:["Every 100 hours","Monthly","Weekly or daily","Only during overhaul"],c:2,ex:"Salty environments demand weekly or even daily desalinization washes to prevent corrosion."},
+  {cat:"Scheduled Maint",tag:"tag-scheduled",q:"Thermocouple resistance and open-circuit checks are typically performed at what interval?",a:["100 hours","200 hours","400 hours","600 hours"],c:3,ex:"Thermocouple checks (resistance, open circuits) are typically at 600-hour intervals."},
+  {cat:"Scheduled Maint",tag:"tag-scheduled",q:"Vibration analysis on a turboprop is typically performed at what interval?",a:["100 hours","200 hours","400 hours","Continuously"],c:2,ex:"Turboprop vibration analysis: ~400 hrs. Large aircraft often have continuous monitoring."},
+  {cat:"Unusual Occur.",tag:"tag-unscheduled",q:"An engine over-speed between 101% and 105% typically allows what action?",a:["No action required","On-wing inspection while engine stays on aircraft","Engine removal and disassembly","Complete overhaul"],c:1,ex:"101–105% over-speed can be inspected on-wing. Above 105% usually requires removal and teardown."},
+  {cat:"Unusual Occur.",tag:"tag-unscheduled",q:"A JT8D engine overspeeds above 104.5% N1 (8980 RPM). What's required?",a:["Visual inspection and return to service","Hot section inspection only","Send to overhaul for complete inspection","Replace compressor blades only"],c:2,ex:"Above 8980 RPM requires overhaul: compressor O/H, turbine disk stretch/hardness, blade stretch, and FPI."},
+  {cat:"Unusual Occur.",tag:"tag-unscheduled",q:"Engine over-speed damage typically results from what force?",a:["Thermal expansion","Excessive centrifugal force","Oil starvation","Compressor stall pressure waves"],c:1,ex:"Over-speed = excessive centrifugal force on rotating parts, causing stretch and deformation."},
+  {cat:"Unusual Occur.",tag:"tag-unscheduled",q:"On a JT15D, an over-temperature reading in 'Area C' during start requires what?",a:["No action","Visual inspection and log book entry","Hot section inspection + bladed disk crack/growth check","Return engine to overhaul facility"],c:2,ex:"Area C: hot section inspection + return bladed disk assembly for crack detection and blade/disk growth checks."},
+  {cat:"Unusual Occur.",tag:"tag-unscheduled",q:"A lightning strike on a turbine engine primarily damages what component?",a:["Combustion liners","Compressor blades","Bearings (magnetization, pitting, arcing)","Fuel nozzles"],c:2,ex:"Lightning causes bearing magnetization, pitting, or burnt spots from electrical arcing."},
+  {cat:"Unusual Occur.",tag:"tag-unscheduled",q:"After engine immersion in water, what level of maintenance is normally required?",a:["Compressor wash and return to service","Hot section inspection","Overhaul","Borescope only"],c:2,ex:"Water immersion normally requires overhaul. Extent depends on whether engine was running, hot, or cold."},
+  {cat:"Unusual Occur.",tag:"tag-unscheduled",q:"Which is NOT classified as an 'unusual occurrence' requiring inspection?",a:["Over-torque","High oil consumption","Bird ingestion","Lightning strike"],c:1,ex:"High oil consumption is performance degradation, not an 'unusual occurrence.' The others (over-limits, FOD, lightning) are."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"Before removing a turbine engine, at least one of what safety item must be nearby?",a:["First aid kit","Fire extinguisher","Spill kit","Safety shower"],c:1,ex:"Flammable fluids leak during removal — fire extinguisher required, well-ventilated area."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"Why might landing gear shock struts need deflating before engine removal?",a:["For hoist clearance","To prevent over-extension once engine weight is removed","To allow tail support","To relieve hydraulic pressure"],c:1,ex:"Without engine weight, struts can over-extend and sustain damage."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"What does QECA stand for?",a:["Quick Engine Change Assembly","Quality Engine Component Assessment","Qualified Engine Certification Authority","Quick Exhaust Control Assembly"],c:0,ex:"QECA = Quick Engine Change Assembly — engine + accessories pre-installed on the mount."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"After disconnecting fluid lines during engine removal, open ends should be:",a:["Left open for drainage","Plugged or covered with moisture-proof tape","Capped with AN fittings","Wrapped with safety wire"],c:1,ex:"Plug/tape prevents FOD and fluid drips. Label everything for reinstallation."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"After installing a turbine engine in a helicopter, what critical alignment must be checked?",a:["Propeller track and balance","Engine-to-transmission alignment","Exhaust stack alignment","Inlet duct alignment"],c:1,ex:"Engine-to-transmission alignment prevents excessive stress on main input shaft couplings. Done by shimming mount legs."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"A properly adjusted power lever must have what at its fully open and closed positions?",a:["A detent click","A degree of cushion or spring-back","A friction lock","A mechanical stop only"],c:1,ex:"Cushion/spring-back ensures fuel control stops are reached before cockpit stops. Multi-engine must have equal cushion."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"Engines in storage are sealed with packets of what moisture-absorbing material?",a:["Activated charcoal","Desiccant (silica gel)","Calcium chloride","Molecular sieve zeolite"],c:1,ex:"Silica gel desiccant absorbs moisture inside the sealed container to prevent corrosion."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"Some overhauled engines are pressurized in shipping containers with what gas?",a:["Argon","CO₂","Nitrogen","Helium"],c:2,ex:"Nitrogen — an inert gas — prevents corrosion during shipping and storage."},
+  {cat:"Removal & Install",tag:"tag-removal",q:"When opening a pressurized engine container, what's the first step?",a:["Remove desiccant bags","Inspect for corrosion","Bleed off gas pressure through the pressure valve","Flush the oil system"],c:2,ex:"First: bleed off gas pressure through the container's pressure valve before removing the cover."},
+  {cat:"Terminology",tag:"tag-terminology",q:"Minute cracking running in all directions on a ceramic-coated surface is called:",a:["Stress rupture","Spalling","Crazing","Flaking"],c:2,ex:"Crazing = minute multi-directional cracking on glazed/ceramic surfaces. AKA 'china cracking.'"},
+  {cat:"Terminology",tag:"tag-terminology",q:"Loose particles of metal on a surface or evidence of surface covering removal is called:",a:["Spalling","Erosion","Flaking","Galling"],c:2,ex:"Flaking = loose metal particles on surface or evidence of surface covering removal."},
+  {cat:"Terminology",tag:"tag-terminology",q:"A smooth, rounded indentation from concentrated wear is called:",a:["Scoring","Pitting","Grooving","Denting"],c:2,ex:"Grooving = smooth, rounded indentation from concentrated wear. Scoring shows directional marks."},
+  {cat:"Terminology",tag:"tag-terminology",q:"'Metallization' in turbine inspection means:",a:["Applying protective coating during repair","Coating from failed molten metal particles sprayed through the engine","Magnetic particle inspection","Heat treatment to restore hardness"],c:1,ex:"Metallization = coating by failed molten metal particles — indicates upstream component failure."},
+  {cat:"Terminology",tag:"tag-terminology",q:"Scoring is characterized by marks in the direction of sliding, typically found where?",a:["On bearing journals","At or near the top of gear teeth","On turbine blade tips","On combustion liner walls"],c:1,ex:"Scoring: scratched/scuffed appearance with marks in sliding direction, generally at/near gear teeth."},
+  {cat:"Cold Section",tag:"tag-cold-section",q:"When blending FOD damage from compressor blades, what tools are permitted?",a:["Power grinders","Hand tools only (files, emery cloth, Carborundum stones)","Pneumatic die grinders","Dremel at low RPM"],c:1,ex:"Power tools are prohibited — risk of heat stress buildup or accidental adjacent damage."},
+  {cat:"Cold Section",tag:"tag-cold-section",q:"A typical compressor blade blend repair has what length-to-depth ratio?",a:["2:1","4:1","8:1","10:1"],c:1,ex:"4:1 ratio — creates a gradual scalloped shape to minimize stress concentration."},
+  {cat:"Cold Section",tag:"tag-cold-section",q:"A crack of any size on a compressor blade requires what action?",a:["Blend repair if within limits","Stop-drill and monitor","Blade replacement","Dye penetrant to determine depth"],c:2,ex:"Zero tolerance — any crack on a compressor blade = blade replacement. No repair permitted."},
+  {cat:"Cold Section",tag:"tag-cold-section",q:"Replacing one blade on an even-numbered wheel when no matching moment-weight is available requires:",a:["Replace all blades","Replace the damaged blade + the one 180° opposite","Replace three blades 120° apart","Rebalance on a test stand"],c:1,ex:"Even number of blades: replace damaged + 180° opposite with equal moment-weight. Odd: three at 120°."},
+  {cat:"Hot Section",tag:"tag-hot-section",q:"Stress rupture cracks on turbine blades appear at what orientation to blade length?",a:["Parallel","45 degrees","Right angles (perpendicular)","Random directions"],c:2,ex:"Stress rupture cracks = hairline cracks at right angles to blade length. Indicates serious over-temp."},
+  {cat:"Hot Section",tag:"tag-hot-section",q:"Burn marks along the length of a combustion liner caused by un-atomized fuel is called:",a:["Sulfidation","Hot streaking","Thermal fatigue","Flame impingement"],c:1,ex:"Hot streaking = un-atomized fuel contacts liner and burns. Caused by malfunctioning/misaligned fuel nozzle. Severe cases send flame through to tailpipe."},
+  {cat:"Hot Section",tag:"tag-hot-section",q:"Tertiary creep in turbine blades is attributed to:",a:["Normal first-run blade seating","Extended cruise at moderate power","Hot starts, over-temps, and extended high-power operation","Cold soaking then rapid starts"],c:2,ex:"Tertiary creep accelerates after secondary creep — caused by thermal abuse and high-power operation."},
+  {cat:"Hot Section",tag:"tag-hot-section",q:"Two or more converging cracks from a free edge on a combustion liner require:",a:["Monitor at next inspection","Stop-drill the crack ends","Repair or replace to prevent piece breaking free","Weld repair only"],c:2,ex:"Converging cracks risk a piece breaking free and causing FOD downstream. Must repair or replace."},
+  {cat:"Hot Section",tag:"tag-hot-section",q:"After welding a combustion liner crack repair, what additional process is required?",a:["Shot peening","Heat treatment for stress relief","Ceramic re-coating","FPI only"],c:1,ex:"Welding creates stress buildup — must be heat-treated for stress relief afterward."},
+  {cat:"NDT / Inspect",tag:"tag-inspection",q:"The primary advantage of a borescope inspection is:",a:["Detecting subsurface cracks","Internal inspection without disassembly","Quantitative stress measurement","Detecting magnetic anomalies"],c:1,ex:"Borescope = inspect engine internals without tearing down. Modern ones take video and measurements."},
+  {cat:"NDT / Inspect",tag:"tag-inspection",q:"In the hot section, what marking tool must NEVER be used?",a:["Grease pencils","Lead pencils","Vibro-etchers","Paint markers"],c:1,ex:"Lead pencils are prohibited — lead causes embrittlement of nickel-based superalloys at high temps. Use felt tip markers."},
+];
+
+// ═══════════════════════════════════════════════
+// TAG COLORS
+// ═══════════════════════════════════════════════
+const TAG_STYLES = {
+  "tag-fod":"background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.2)",
+  "tag-scheduled":"background:rgba(59,130,246,0.12);color:#3b82f6;border:1px solid rgba(59,130,246,0.2)",
+  "tag-unscheduled":"background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)",
+  "tag-removal":"background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.2)",
+  "tag-terminology":"background:rgba(148,163,184,0.12);color:#94a3b8;border:1px solid rgba(148,163,184,0.2)",
+  "tag-cold-section":"background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.2)",
+  "tag-hot-section":"background:rgba(251,146,60,0.12);color:#fb923c;border:1px solid rgba(251,146,60,0.2)",
+  "tag-inspection":"background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.2)",
+};
+
+// ═══════════════════════════════════════════════
+// SCORING CONFIG
+// ═══════════════════════════════════════════════
+const BASE_POINTS = 1000;
+const FIRST_BONUS = 250;
+const TIME_LIMIT = 30; // seconds
+function getMultiplier(streak) {
+  if (streak >= 8) return 4;
+  if (streak >= 5) return 3;
+  if (streak >= 3) return 2;
+  return 1;
+}
+
+// ═══════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function genCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const LETTERS = ['A','B','C','D'];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let role = null; // 'host' or 'player'
+let roomCode = null;
+let roomRef = null;
+let playerId = null;
+let playerName = '';
+let hostTimerInterval = null;
+let playerTimerInterval = null;
+let hostSettings = { timer: true, count20: false, shuffleOrder: false };
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function goHost() { role = 'host'; createRoom(); }
+function goPlayer() { role = 'player'; showView('player-join'); document.getElementById('join-code').focus(); }
+
+// ═══════════════════════════════════════════════
+// HOST: CREATE ROOM
+// ═══════════════════════════════════════════════
+function createRoom() {
+  roomCode = genCode();
+  roomRef = db.ref('rooms/' + roomCode);
+  roomRef.set({
+    state: 'lobby',
+    host: true,
+    currentQ: -1,
+    questions: [],
+    settings: { timer: true, count20: false },
+    revealed: false,
+    players: {},
+    answers: {},
+    createdAt: firebase.database.ServerValue.TIMESTAMP
+  });
+  // Clean up on disconnect
+  roomRef.onDisconnect().remove();
+
+  document.getElementById('host-room-code').textContent = roomCode;
+  showView('host-lobby');
+
+  // Generate QR code
+  const joinUrl = window.location.href.split('?')[0] + '?room=' + roomCode;
+  document.getElementById('qr-code').innerHTML = '';
+  new QRCode(document.getElementById('qr-code'), {
+    text: joinUrl,
+    width: 180,
+    height: 180,
+    colorDark: '#08090c',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  document.getElementById('qr-url-text').textContent = joinUrl;
+
+  // Listen for players
+  roomRef.child('players').on('value', snap => {
+    const players = snap.val() || {};
+    const chips = document.getElementById('host-player-chips');
+    const names = Object.values(players).map(p => p.name);
+    if (names.length === 0) {
+      chips.innerHTML = '<span style="color:var(--text-3);font-size:.85rem;">Waiting for players...</span>';
+    } else {
+      chips.innerHTML = names.map(n => `<span class="player-chip"><span class="chip-dot"></span>${n}</span>`).join('');
+    }
+  });
+}
+
+function toggleSetting(el, key) {
+  el.classList.toggle('on');
+  if (el.id === 'set-timer') hostSettings.timer = el.classList.contains('on');
+  if (el.id === 'set-20') hostSettings.count20 = el.classList.contains('on');
+  if (el.id === 'set-shuffle') hostSettings.shuffleOrder = el.classList.contains('on');
+}
+
+// ═══════════════════════════════════════════════
+// HOST: START GAME
+// ═══════════════════════════════════════════════
+function hostStartGame() {
+  let qs = hostSettings.shuffleOrder ? shuffle(ALL_QUESTIONS) : [...ALL_QUESTIONS];
+  if (hostSettings.count20) qs = qs.slice(0, 20);
+
+  // Store minimal question data in Firebase (no correct answers!)
+  const qData = qs.map((q, i) => ({
+    idx: i, cat: q.cat, tag: q.tag, q: q.q, a: q.a
+  }));
+
+  roomRef.update({
+    state: 'playing',
+    currentQ: 0,
+    totalQ: qs.length,
+    questions: qData,
+    revealed: false,
+    settings: { timer: hostSettings.timer, count20: hostSettings.count20 },
+    qStartTime: firebase.database.ServerValue.TIMESTAMP,
+    answers: {}
+  });
+
+  // Store correct answers locally (never in Firebase)
+  window._hostAnswers = qs.map(q => q.c);
+  window._hostExplains = qs.map(q => q.ex);
+  window._hostQs = qs;
+  window._totalQ = qs.length;
+
+  showView('host-game');
+  document.getElementById('hg-room').textContent = roomCode;
+  hostListenGame();
+}
+
+// ═══════════════════════════════════════════════
+// HOST: GAME LISTENERS
+// ═══════════════════════════════════════════════
+function hostListenGame() {
+  // Current question
+  roomRef.child('currentQ').on('value', snap => {
+    const idx = snap.val();
+    if (idx === null || idx < 0) return;
+    hostRenderQuestion(idx);
+  });
+
+  // Answer ticker
+  roomRef.child('answers').on('value', snap => {
+    const answers = snap.val() || {};
+    const currentQ = Object.keys(answers).length;
+    const totalPlayers = document.getElementById('hg-pcount').textContent;
+    document.getElementById('hg-ticker').innerHTML = `<strong>${currentQ}</strong> / ${totalPlayers} answered`;
+  });
+
+  // Player count
+  roomRef.child('players').on('value', snap => {
+    const players = snap.val() || {};
+    document.getElementById('hg-pcount').textContent = Object.keys(players).length;
+    updateLeaderboard(players);
+  });
+}
+
+function hostRenderQuestion(idx) {
+  const qs = window._hostQs;
+  if (idx >= qs.length) return;
+  const q = qs[idx];
+  const total = qs.length;
+
+  clearInterval(hostTimerInterval);
+
+  // Show main, hide between/results
+  document.getElementById('hg-main').style.display = '';
+  document.getElementById('hg-between').classList.remove('active');
+  document.getElementById('hg-results').classList.remove('active');
+  document.getElementById('hg-sidebar').style.display = '';
+
+  document.getElementById('hg-q-num').textContent = `QUESTION ${String(idx + 1).padStart(2, '0')} / ${total}`;
+  document.getElementById('hg-q-tag').innerHTML = `<span class="tag" style="${TAG_STYLES[q.tag] || ''}">${q.cat}</span>`;
+  document.getElementById('hg-q-text').textContent = q.q;
+  document.getElementById('hg-qcount').textContent = `${idx + 1}/${total}`;
+  document.getElementById('hg-prog-bar').style.width = ((idx) / total * 100) + '%';
+  document.getElementById('hg-ticker').innerHTML = '<strong>0</strong> / ' + document.getElementById('hg-pcount').textContent + ' answered';
+
+  // Answers
+  const ad = document.getElementById('hg-answers');
+  ad.innerHTML = '';
+  q.a.forEach((ans, i) => {
+    const div = document.createElement('div');
+    div.className = 'hg-ans';
+    div.id = 'hg-ans-' + i;
+    div.innerHTML = `<span class="ha-letter">${LETTERS[i]}</span><span>${ans}</span>`;
+    ad.appendChild(div);
+  });
+
+  // Controls
+  document.getElementById('hg-reveal-btn').style.display = 'inline-block';
+  document.getElementById('hg-next-btn').style.display = 'none';
+  document.getElementById('hg-finish-btn').style.display = 'none';
+
+  // Timer
+  if (hostSettings.timer) {
+    const timerBar = document.getElementById('hg-timer-bar');
+    timerBar.style.width = '100%';
+    timerBar.classList.remove('danger');
+    document.getElementById('hg-timer-wrap').style.display = '';
+    let timeLeft = TIME_LIMIT;
+    hostTimerInterval = setInterval(() => {
+      timeLeft -= 0.1;
+      const pct = (timeLeft / TIME_LIMIT) * 100;
+      timerBar.style.width = Math.max(0, pct) + '%';
+      if (timeLeft <= 8) timerBar.classList.add('danger');
+      if (timeLeft <= 0) {
+        clearInterval(hostTimerInterval);
+        hostReveal();
+      }
+    }, 100);
+  } else {
+    document.getElementById('hg-timer-wrap').style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// HOST: REVEAL ANSWER
+// ═══════════════════════════════════════════════
+function hostReveal() {
+  clearInterval(hostTimerInterval);
+  document.getElementById('hg-reveal-btn').style.display = 'none';
+
+  const idx = window._hostQs.length - (window._totalQ - parseInt(document.getElementById('hg-qcount').textContent.split('/')[0]) + 1);
+  // Get current Q index from Firebase-style tracking
+  const currentIdx = parseInt(document.getElementById('hg-qcount').textContent.split('/')[0]) - 1;
+  const correctIdx = window._hostAnswers[currentIdx];
+
+  // Highlight correct answer
+  document.getElementById('hg-ans-' + correctIdx).classList.add('correct');
+
+  // Score players
+  roomRef.child('answers').once('value', snap => {
+    const answers = snap.val() || {};
+    // Find who was first correct
+    let firstCorrectId = null;
+    let firstTime = Infinity;
+    Object.entries(answers).forEach(([pid, data]) => {
+      if (data.choice === correctIdx && data.time < firstTime) {
+        firstTime = data.time;
+        firstCorrectId = pid;
+      }
+    });
+
+    // Calculate scores
+    roomRef.child('players').once('value', psnap => {
+      const players = psnap.val() || {};
+      const updates = {};
+
+      Object.entries(answers).forEach(([pid, data]) => {
+        if (!players[pid]) return;
+        const isCorrect = data.choice === correctIdx;
+        const player = players[pid];
+        const streak = isCorrect ? (player.streak || 0) + 1 : 0;
+        const multi = getMultiplier(streak);
+
+        let pts = 0;
+        if (isCorrect) {
+          // Speed bonus: linear from BASE_POINTS at t=0 to BASE_POINTS/2 at t=TIME_LIMIT
+          const timeTaken = Math.min(data.time, TIME_LIMIT);
+          const speedPts = Math.round(BASE_POINTS - (BASE_POINTS * 0.5 * timeTaken / TIME_LIMIT));
+          pts = speedPts * multi;
+          if (pid === firstCorrectId) pts += FIRST_BONUS;
+        }
+
+        const newTotal = (player.score || 0) + pts;
+        const newCorrect = (player.correct || 0) + (isCorrect ? 1 : 0);
+
+        updates[`players/${pid}/score`] = newTotal;
+        updates[`players/${pid}/correct`] = newCorrect;
+        updates[`players/${pid}/streak`] = streak;
+        updates[`players/${pid}/lastPts`] = pts;
+        updates[`players/${pid}/maxStreak`] = Math.max(player.maxStreak || 0, streak);
+      });
+
+      // Players who didn't answer
+      Object.keys(players).forEach(pid => {
+        if (!answers[pid]) {
+          updates[`players/${pid}/streak`] = 0;
+          updates[`players/${pid}/lastPts`] = 0;
+        }
+      });
+
+      updates['revealed'] = true;
+      roomRef.update(updates);
+
+      // Show next/finish button
+      if (currentIdx < window._totalQ - 1) {
+        document.getElementById('hg-next-btn').style.display = 'inline-block';
+      } else {
+        document.getElementById('hg-finish-btn').style.display = 'inline-block';
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+// HOST: NEXT QUESTION
+// ═══════════════════════════════════════════════
+function hostNext() {
+  const currentIdx = parseInt(document.getElementById('hg-qcount').textContent.split('/')[0]) - 1;
+  const nextIdx = currentIdx + 1;
+
+  roomRef.update({
+    currentQ: nextIdx,
+    revealed: false,
+    answers: {},
+    qStartTime: firebase.database.ServerValue.TIMESTAMP
+  });
+}
+
+// ═══════════════════════════════════════════════
+// HOST: LEADERBOARD
+// ═══════════════════════════════════════════════
+function updateLeaderboard(players) {
+  const sorted = Object.entries(players)
+    .map(([id, p]) => ({ id, name: p.name, score: p.score || 0, streak: p.streak || 0, lastPts: p.lastPts || 0, correct: p.correct || 0 }))
+    .sort((a, b) => b.score - a.score);
+
+  const list = document.getElementById('sb-list');
+  list.innerHTML = '';
+  sorted.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'sb-row' + (p.lastPts > 0 ? ' highlight' : '');
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    row.innerHTML = `
+      <span class="sb-rank ${rankClass}">${i + 1}</span>
+      <span class="sb-name">${p.name}</span>
+      <span class="sb-pts">${p.score.toLocaleString()}</span>
+      ${p.streak >= 3 ? `<span class="sb-streak">🔥${p.streak}</span>` : ''}
+      ${p.lastPts > 0 ? `<span class="sb-delta show">+${p.lastPts}</span>` : ''}
+    `;
+    row.style.animation = `rankShift .3s ease forwards`;
+    row.style.animationDelay = (i * 0.04) + 's';
+    list.appendChild(row);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// HOST: FINAL RESULTS
+// ═══════════════════════════════════════════════
+function hostFinish() {
+  roomRef.update({ state: 'finished' });
+  document.getElementById('hg-main').style.display = 'none';
+  document.getElementById('hg-sidebar').style.display = 'none';
+  document.getElementById('hg-results').classList.add('active');
+
+  roomRef.child('players').once('value', snap => {
+    const players = snap.val() || {};
+    const sorted = Object.entries(players)
+      .map(([id, p]) => ({ name: p.name, score: p.score || 0, correct: p.correct || 0 }))
+      .sort((a, b) => b.score - a.score);
+
+    // Podium
+    const podium = document.getElementById('hg-podium');
+    // Reorder for podium display: 2nd, 1st, 3rd
+    const podiumOrder = [sorted[1], sorted[0], sorted[2]].filter(Boolean);
+    const rankLabels = ['2nd', '1st', '3rd'];
+    const rankNums = [2, 1, 3];
+    podium.innerHTML = '';
+    podiumOrder.forEach((p, i) => {
+      if (!p) return;
+      const spot = document.createElement('div');
+      spot.className = 'podium-spot';
+      spot.style.animation = `popIn .5s ease forwards`;
+      spot.style.animationDelay = (0.2 + i * 0.15) + 's';
+      spot.style.opacity = '0';
+      spot.innerHTML = `
+        <div class="podium-name">${p.name}</div>
+        <div class="podium-pts">${p.score.toLocaleString()} pts</div>
+        <div class="podium-bar"><span class="p-rank">#${rankNums[i]}</span></div>
+      `;
+      podium.appendChild(spot);
+    });
+
+    // Full list
+    const fullDiv = document.getElementById('hg-full-results');
+    fullDiv.innerHTML = '';
+    sorted.forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'fr-row';
+      row.innerHTML = `
+        <span class="fr-rank">${i + 1}.</span>
+        <span class="fr-name">${p.name}</span>
+        <span class="fr-score">${p.score.toLocaleString()}</span>
+        <span class="fr-correct">${p.correct}/${window._totalQ}</span>
+      `;
+      fullDiv.appendChild(row);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+// PLAYER: JOIN
+// ═══════════════════════════════════════════════
+function playerJoin() {
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  const name = document.getElementById('join-name').value.trim();
+  const errEl = document.getElementById('join-error');
+
+  if (!code || code.length !== 4) { errEl.textContent = 'Enter a 4-character room code'; return; }
+  if (!name) { errEl.textContent = 'Enter your name'; return; }
+  errEl.textContent = '';
+
+  roomCode = code;
+  playerName = name;
+  roomRef = db.ref('rooms/' + code);
+
+  roomRef.once('value', snap => {
+    if (!snap.exists()) {
+      errEl.textContent = 'Room not found. Check the code.';
+      return;
+    }
+    const room = snap.val();
+    if (room.state !== 'lobby' && room.state !== 'playing') {
+      errEl.textContent = 'Game already finished.';
+      return;
+    }
+
+    // Add player
+    const playerRef = roomRef.child('players').push();
+    playerId = playerRef.key;
+    playerRef.set({
+      name: name,
+      score: 0,
+      correct: 0,
+      streak: 0,
+      maxStreak: 0,
+      lastPts: 0,
+      joinedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+    playerRef.onDisconnect().remove();
+
+    document.getElementById('pw-name').textContent = name;
+
+    if (room.state === 'lobby') {
+      showView('player-wait');
+      // Wait for game to start
+      roomRef.child('state').on('value', snap => {
+        if (snap.val() === 'playing') {
+          showView('player-game');
+          document.getElementById('pg-name').textContent = playerName;
+          playerListenGame();
+        }
+      });
+    } else {
+      // Game already in progress, join mid-game
+      showView('player-game');
+      document.getElementById('pg-name').textContent = playerName;
+      playerListenGame();
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// PLAYER: GAME LISTENERS
+// ═══════════════════════════════════════════════
+function playerListenGame() {
+  // Listen for current question
+  roomRef.on('value', snap => {
+    const room = snap.val();
+    if (!room) return;
+
+    if (room.state === 'finished') {
+      playerShowResults(room);
+      return;
+    }
+
+    if (room.state !== 'playing') return;
+
+    const qIdx = room.currentQ;
+    const qs = room.questions;
+    if (!qs || qIdx < 0 || qIdx >= qs.length) return;
+
+    const q = qs[qIdx];
+    const myAnswer = room.answers && room.answers[playerId];
+    const revealed = room.revealed;
+    const me = room.players && room.players[playerId];
+
+    // Update header
+    if (me) {
+      document.getElementById('pg-pts').textContent = (me.score || 0).toLocaleString() + ' pts';
+      // Calculate rank
+      const players = room.players || {};
+      const sorted = Object.entries(players).sort((a, b) => (b[1].score || 0) - (a[1].score || 0));
+      const myRank = sorted.findIndex(([id]) => id === playerId) + 1;
+      document.getElementById('pg-rank').textContent = `#${myRank} of ${sorted.length}`;
+    }
+
+    // Show question area
+    document.getElementById('pg-waiting').style.display = 'none';
+    document.getElementById('pg-question-area').style.display = '';
+
+    // Render question
+    document.getElementById('pg-q-tag').innerHTML = `<span class="tag" style="${TAG_STYLES[q.tag] || ''}">${q.cat}</span>`;
+    document.getElementById('pg-q-text').textContent = q.q;
+
+    const ad = document.getElementById('pg-answers');
+    // Only re-render if question changed
+    if (ad.dataset.qIdx !== String(qIdx)) {
+      ad.dataset.qIdx = String(qIdx);
+      ad.innerHTML = '';
+      clearInterval(playerTimerInterval);
+      document.getElementById('pg-feedback').className = 'pg-feedback';
+      document.getElementById('pg-feedback').style.display = 'none';
+
+      q.a.forEach((ans, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'pg-ans';
+        btn.id = 'pg-ans-' + i;
+        btn.innerHTML = `<span class="pa-letter">${LETTERS[i]}</span><span>${ans}</span>`;
+        btn.onclick = () => playerAnswer(i, qIdx);
+        ad.appendChild(btn);
+      });
+
+      // Timer
+      if (room.settings && room.settings.timer) {
+        document.getElementById('pg-timer-wrap').style.display = '';
+        const timerBar = document.getElementById('pg-timer-bar');
+        timerBar.style.width = '100%';
+        timerBar.classList.remove('danger');
+        let timeLeft = TIME_LIMIT;
+        playerTimerInterval = setInterval(() => {
+          timeLeft -= 0.1;
+          timerBar.style.width = Math.max(0, (timeLeft / TIME_LIMIT) * 100) + '%';
+          if (timeLeft <= 8) timerBar.classList.add('danger');
+          if (timeLeft <= 0) clearInterval(playerTimerInterval);
+        }, 100);
+      } else {
+        document.getElementById('pg-timer-wrap').style.display = 'none';
+      }
+    }
+
+    // If already answered, disable buttons
+    if (myAnswer !== undefined && myAnswer !== null) {
+      document.querySelectorAll('.pg-ans').forEach(b => b.classList.add('disabled'));
+    }
+
+    // If revealed, show correct/wrong
+    if (revealed && me) {
+      clearInterval(playerTimerInterval);
+      document.querySelectorAll('.pg-ans').forEach(b => b.classList.add('disabled'));
+
+      // We need the correct answer — derive from host's reveal
+      // The host marks the correct one; we can find it from the answers+scores
+      // Actually: just check which answer the host highlighted. For players,
+      // we check their lastPts — if > 0 they got it right.
+      const wasCorrect = myAnswer && me.lastPts > 0;
+      const correctFromScoring = findCorrectFromRoom(room, qIdx);
+
+      if (correctFromScoring !== null) {
+        const correctEl = document.getElementById('pg-ans-' + correctFromScoring);
+        if (correctEl) correctEl.classList.add('correct');
+      }
+
+      if (myAnswer && !wasCorrect) {
+        const wrongEl = document.getElementById('pg-ans-' + myAnswer.choice);
+        if (wrongEl) wrongEl.classList.add('wrong');
+      }
+
+      // Feedback
+      const fb = document.getElementById('pg-feedback');
+      if (myAnswer) {
+        if (wasCorrect) {
+          fb.className = 'pg-feedback correct-fb show';
+          fb.innerHTML = `<div class="fb-pts">+${me.lastPts} pts</div>`;
+        } else {
+          fb.className = 'pg-feedback wrong-fb show';
+          fb.innerHTML = `<div class="fb-pts">+0 pts</div>`;
+        }
+      } else {
+        fb.className = 'pg-feedback wrong-fb show';
+        fb.innerHTML = `<div class="fb-pts">No answer</div>`;
+      }
+
+      // Streak
+      const sb = document.getElementById('pg-streak-bar');
+      if (me.streak >= 2) {
+        const multi = getMultiplier(me.streak);
+        sb.innerHTML = `🔥 Streak: <span class="streak-num">${me.streak}</span> ${multi > 1 ? `<span class="multiplier">(${multi}x)</span>` : ''}`;
+      } else {
+        sb.innerHTML = '';
+      }
+    }
+  });
+}
+
+// Try to find the correct answer from room data
+function findCorrectFromRoom(room, qIdx) {
+  // The correct answer is whichever choice the players with lastPts > 0 chose
+  const answers = room.answers || {};
+  const players = room.players || {};
+  for (const [pid, data] of Object.entries(answers)) {
+    const player = players[pid];
+    if (player && player.lastPts > 0) {
+      return data.choice;
+    }
+  }
+  // If nobody got it right, we can't determine — return null
+  // In practice the host will show it on the projected screen
+  return null;
+}
+
+// ═══════════════════════════════════════════════
+// PLAYER: SUBMIT ANSWER
+// ═══════════════════════════════════════════════
+function playerAnswer(choice, qIdx) {
+  // Check we haven't already answered
+  roomRef.child('answers/' + playerId).once('value', snap => {
+    if (snap.exists()) return;
+
+    // Calculate time taken
+    roomRef.child('qStartTime').once('value', tsnap => {
+      const startTime = tsnap.val() || Date.now();
+      const timeTaken = (Date.now() - startTime) / 1000;
+
+      roomRef.child('answers/' + playerId).set({
+        choice: choice,
+        time: Math.round(timeTaken * 100) / 100,
+        qIdx: qIdx
+      });
+
+      // Disable all buttons
+      document.querySelectorAll('.pg-ans').forEach(b => b.classList.add('disabled'));
+      clearInterval(playerTimerInterval);
+
+      // Visual feedback — selected state
+      const btn = document.getElementById('pg-ans-' + choice);
+      if (btn) btn.style.borderColor = 'var(--amber)';
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+// PLAYER: FINAL RESULTS
+// ═══════════════════════════════════════════════
+function playerShowResults(room) {
+  showView('player-results');
+  const players = room.players || {};
+  const me = players[playerId];
+  if (!me) return;
+
+  const sorted = Object.entries(players)
+    .map(([id, p]) => ({ id, score: p.score || 0 }))
+    .sort((a, b) => b.score - a.score);
+  const rank = sorted.findIndex(s => s.id === playerId) + 1;
+
+  document.getElementById('pr-rank').textContent = '#' + rank;
+  document.getElementById('pr-name').textContent = me.name;
+  document.getElementById('pr-score').textContent = (me.score || 0).toLocaleString() + ' pts';
+  document.getElementById('pr-stats').innerHTML = `
+    <div><div class="pr-stat-val" style="color:var(--green)">${me.correct || 0}</div><div class="pr-stat-label">Correct</div></div>
+    <div><div class="pr-stat-val" style="color:var(--amber)">${me.maxStreak || 0}</div><div class="pr-stat-label">Best Streak</div></div>
+    <div><div class="pr-stat-val">${rank}</div><div class="pr-stat-label">Finish</div></div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// AUTO-UPPERCASE ROOM CODE
+// ═══════════════════════════════════════════════
+document.getElementById('join-code').addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+});
+
+// ═══════════════════════════════════════════════
+// AUTO-JOIN FROM QR CODE / URL PARAMETER
+// ═══════════════════════════════════════════════
+(function autoJoinCheck() {
+  const params = new URLSearchParams(window.location.search);
+  const roomParam = params.get('room');
+  if (roomParam && roomParam.length === 4) {
+    // Go straight to join screen with code pre-filled
+    role = 'player';
+    showView('player-join');
+    document.getElementById('join-code').value = roomParam.toUpperCase();
+    document.getElementById('join-name').focus();
+  }
+})();
+</script>
+</body>
+</html>
