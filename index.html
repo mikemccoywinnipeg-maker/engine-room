@@ -556,7 +556,8 @@ function createRoom() {
   showView('host-lobby');
 
   // Generate QR code
-  const joinUrl = window.location.href.split('?')[0] + '?room=' + roomCode;
+  const baseUrl = 'https://mikemccoywinnipeg-maker.github.io/engine-room/';
+  const joinUrl = baseUrl + '?room=' + roomCode;
   document.getElementById('qr-code').innerHTML = '';
   new QRCode(document.getElementById('qr-code'), {
     text: joinUrl,
